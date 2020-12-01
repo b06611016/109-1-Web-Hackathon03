@@ -26,8 +26,25 @@ const dboptions = {
   poolSize: 10
 }
 // TODO : connect mongodb here
+if (!process.env.MONGO_URL) {
+  console.error('Missing MONGO_URL!!!');
+  process.exit(1);
+}
 
-routes(app)
+mongoose.connect(process.env.MONGO_URL, dboptions);
+
+const db = mongoose.connection;
+
+db.on('error', (error) => {
+  console.error(error)
+});
+
+db.once('open', () => {
+  console.log('MongoDB connected!');
+  routes(app);
+});
+
+//routes(app)
 
 app.listen(port, () => {
   console.log(`Server is up on port ${port}.`)
